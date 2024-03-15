@@ -1,8 +1,7 @@
-const cardTemplate = document.querySelector('#card-template').content;
-
 //Функция создания карточки
 
-export function createCard(сardLink, сardText, removeCard, LikeButton) {
+export function createCard(сardLink, сardText, removeCard, LikeButton, openCardPopup) {
+  const cardTemplate = document.querySelector('#card-template').content;
   const card = cardTemplate.querySelector('.places__item').cloneNode(true);
   const cardImage = card.querySelector('.card__image');
 
@@ -11,27 +10,27 @@ export function createCard(сardLink, сardText, removeCard, LikeButton) {
   cardImage.alt = сardText;
 
   const buttonDeleteCard = card.querySelector('.card__delete-button');
-  buttonDeleteCard.addEventListener('click', removeCard);
+  buttonDeleteCard.addEventListener('click', () => removeCard(card)); 
 
   const cardLikeButton = card.querySelector('.card__like-button');
-  cardLikeButton.addEventListener('click', LikeButton);
+  cardLikeButton.addEventListener('click', () => LikeButton(cardLikeButton));
+  
+  cardImage.addEventListener('click', () => openCardPopup(сardLink, сardText))
   
   return card;
 }
 
+
 // @todo: Функция удаления карточки
 
-export function removeCard(event) {
-  const card = event.target.closest('.places__item');
-  card.remove();
+export function removeCard(cardElement) {
+  cardElement.remove(); 
 }
+
 
 //обработчик лайка\дизлайка
 
-export function LikeButton (evt) {
-  if (evt.target.classList.value === 'card__like-button') {
-    evt.target.classList.add('card__like-button_is-active')
-  } else {
-    evt.target.classList.remove('card__like-button_is-active')
-  }
+export function LikeButton (cardLikeButton) {
+  cardLikeButton.classList.toggle('card__like-button_is-active')
 };
+

@@ -1,89 +1,43 @@
-//Закрыть попап
+//Закрыть попап функции
 
-import { createCard, removeCard, LikeButton } from './card';
-
-export function popUpClose (popupTypeEdit, popupClose) {
-  popupClose.addEventListener('click', function () {
-    popupTypeEdit.classList.remove('popup_is-opened')
-  });
-  
-  const page = document.querySelector('.page');
-
-  page.addEventListener('keydown', function (evt) {
-    if (evt.key === 'Escape') {
-      popupTypeEdit.classList.remove('popup_is-opened')
-    }
-  });
-
-  popupTypeEdit.addEventListener('click', (evt) => {
-    if (evt.currentTarget === evt.target) {
-      popupTypeEdit.classList.remove('popup_is-opened')
-    }
-  })
+export function popUpClose (popupTypeEdit) {
+  console.log(1)
+  popupTypeEdit.classList.remove('popup_is-opened')
 };
 
-//Данные из профиля
-const profileTitle = document.querySelector('.profile__title')
-const profileDescription = document.querySelector('.profile__description')
-
-export function profileText () {
-  const formElement = document.forms['edit-profile']
-
-  document.forms['edit-profile'].name.value = profileTitle.textContent;
-  document.forms['edit-profile'].description.value = profileDescription.textContent;
-
-  formElement.addEventListener('submit', handleFormSubmit); 
+function closeByOverlay(evt, popupTypeEdit) {
+  if (evt.currentTarget === evt.target) {
+    console.log(2)
+    popupTypeEdit.classList.remove('popup_is-opened')
+  }
 }
 
-// Редактирование профиля
+function closeByEsc(evt, popupTypeEdit) {
+    if (evt.key === 'Escape') {
+      console.log(evt.currentTarget)
+      popupTypeEdit.classList.remove('popup_is-opened')
+    }
+}  
 
-function handleFormSubmit(evt) {
-  const nameInput = document.forms['edit-profile'].name
-  const jobInput = document.forms['edit-profile'].description
-  const popupTypeEdit = document.querySelector('.popup_type_edit ') 
+function closePopup (popupClose, popupTypeEdit, page) {
 
-  evt.preventDefault(); 
+  popupTypeEdit.addEventListener('click', (evt) => 
+  closeByOverlay(evt, popupTypeEdit));
 
-  const nameInputValue = nameInput.value;
-  const jobInputValue = jobInput.value;
+  page.addEventListener('keydown', (evt) => 
+  closeByEsc(evt, popupTypeEdit));
 
-  profileTitle.textContent = nameInputValue;
-  profileDescription.textContent = jobInputValue;
+  popupClose.addEventListener('click', (evt) => 
+  popUpClose(popupTypeEdit))
 
-  popupTypeEdit.classList.remove('popup_is-opened')
 }
 
 
-const cardsList = document.querySelector('.places__list');
-const formElements = document.forms['new-place']
+//открыть попап
 
-export function formElement(addCard) {
-  formElements.addEventListener('submit', function(evt) {
-    const nameInput = document.forms['new-place']['place-name'].value
-    const jobInput = document.forms['new-place'].link.value
-  
-    evt.preventDefault();
-  
-    const cardElement = createCard(jobInput, nameInput, removeCard, );
-    cardsList.prepend(cardElement);
-    addCard.classList.remove('popup_is-opened')
-    formElements.reset();
-  });
-}
-
-
-//Добавление карточки
-
-
-export function handleFormCardSubmit () {
-  const nameInput = document.forms['new-place']['place-name'].value
-  const jobInput = document.forms['new-place'].link.value
-
-
-  formElements.preventDefault();
-
-  const cardElement = createCard(jobInput, nameInput, removeCard);
-  cardsList.prepend(cardElement);
-  addCard.classList.remove('popup_is-opened')
-  formElements.reset();
+export function openPopup (popupClose, popupTypeEdit, page) {
+  popupTypeEdit.classList.add('popup_is-opened');
+  if (popupTypeEdit.classList.contains('popup_is-opened')){
+    closePopup (popupClose, popupTypeEdit, page);
+  }
 }
