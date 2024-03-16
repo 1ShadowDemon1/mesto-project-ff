@@ -5,7 +5,7 @@ import { openPopup, popUpClose } from './scripts/modal';
 
 
 // @todo: Темплейт карточки
-
+const popupCollection = document.querySelectorAll('.popup')
 const profileTitle = document.querySelector('.profile__title')
 const profileDescription = document.querySelector('.profile__description')
 const formElement = document.forms['edit-profile']
@@ -13,6 +13,12 @@ const newPlace = document.forms['new-place']
 const popupTypeEdit = document.querySelector('.popup_type_edit')
 const addCard = document.querySelector('.popup_type_new-card')
 const page = document.querySelector('.page')
+const profileButton = document.querySelector('.profile__edit-button')
+const addCardButton = document.querySelector('.profile__add-button')
+const popupTypeImage = document.querySelector('.popup_type_image ')
+const popupImage = popupTypeImage.querySelector('.popup__image')
+const popupCaption = popupTypeImage.querySelector('.popup__caption')
+
 // @todo: DOM узлы
 
 const cardsList = document.querySelector('.places__list');
@@ -28,15 +34,12 @@ initialCards.forEach(function(item) {
 
 //Добавление анимации всем поапам
 
-const popupCollection = document.querySelectorAll('.popup')
 for(let i = 0; i < popupCollection.length; i++) {
   popupCollection.forEach(popupCollection => popupCollection.classList.add('popup_is-animated'))
 }
 
 
 //Открыть профиль
-
-const profileButton = document.querySelector('.profile__edit-button')
 
 profileButton.addEventListener('click', () => {
   const popupClose = popupTypeEdit.querySelector('.popup__close')
@@ -70,20 +73,19 @@ function handleFormSubmit(evt) {
 
 //Открыть форму добавления карточек
 
-const addCardButton = document.querySelector('.profile__add-button')
-
 addCardButton.addEventListener('click', function() {
   const popupClose = addCard.querySelector('.popup__close')
 
   openPopup(popupClose, addCard, page)
 
-  newPlace.addEventListener('submit', (evt) => handleFormCardSubmit(evt, newPlace));
+  newPlace.addEventListener('submit', handleFormCardSubmit);
+  newPlace.reset();
 });
 
 
 //Добавить новую карточку
 
-function handleFormCardSubmit(evt, newPlace) {
+function handleFormCardSubmit(evt) {
   const nameInput = document.forms['new-place']['place-name'].value
   const jobInput = document.forms['new-place'].link.value
 
@@ -92,17 +94,13 @@ function handleFormCardSubmit(evt, newPlace) {
   const cardElement = createCard(jobInput, nameInput, removeCard, LikeButton, openCardPopup);
   cardsList.prepend(cardElement);
   popUpClose(addCard)
-  newPlace.reset();
 };
 
 
 //Открыть попап карточку
 
 function openCardPopup(сardLink, сardText) {
-  const popupTypeImage = document.querySelector('.popup_type_image ')
   const popupClose = popupTypeImage.querySelector('.popup__close')
-  const popupImage = popupTypeImage.querySelector('.popup__image')
-  const popupCaption = popupTypeImage.querySelector('.popup__caption')
   popupImage.src = сardLink
   popupCaption.textContent = сardText
   openPopup(popupClose, popupTypeImage, page)

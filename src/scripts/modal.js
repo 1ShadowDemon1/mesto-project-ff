@@ -18,6 +18,8 @@ function closeByEsc(evt) {
     }
 }  
 
+//Закрыть попап и снять слушатель
+
 function closeModal (Test) {
   const page = document.querySelector('.page')
   const popupTypeEdit = document.querySelector('.popup_type_edit')
@@ -28,6 +30,8 @@ function closeModal (Test) {
   popupTypeEdit.removeEventListener('click', closeByOverlay);
 }
 
+
+//Слушатель закрытия попапа
 
 function closePopup (popupClose, popupTypeEdit, page) {
 
@@ -41,7 +45,7 @@ function closePopup (popupClose, popupTypeEdit, page) {
 }
 
 
-//открыть попап
+//Открыть попап
 
 export function openPopup (popupClose, popupTypeEdit, page) {
   popupTypeEdit.classList.add('popup_is-opened');
