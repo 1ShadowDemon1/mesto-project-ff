@@ -1,13 +1,21 @@
-//Закрыть попап функции
+//Открыть попап
 
-export function popUpClose(popupTypeEdit) {
-  closeModal(popupTypeEdit);  
-};
+export function openModal (popupTypeEdit) {
+  popupTypeEdit.classList.add('popup_is-opened');
+
+  const popupClose = popupTypeEdit.querySelector('.popup__close');
+
+  popupTypeEdit.addEventListener('click', closeByOverlay);
+  document.addEventListener('keydown', closeByEsc);
+  popupClose.addEventListener('click', () => closeModal(popupTypeEdit))
+
+}
+
+//Закрыть попап функции
 
 function closeByOverlay(evt) {
   if (evt.currentTarget === evt.target) {
-    const openedPopup = document.querySelector('.popup_is-opened');
-    closeModal(openedPopup); 
+    closeModal(evt.target); 
   }
 }
 
@@ -20,36 +28,8 @@ function closeByEsc(evt) {
 
 //Закрыть попап и снять слушатель
 
-function closeModal (Test) {
-  const page = document.querySelector('.page')
-  const popupTypeEdit = document.querySelector('.popup_type_edit')
+export function closeModal(classTarget) {
+  classTarget.classList.remove('popup_is-opened')
 
-  Test.classList.remove('popup_is-opened')
-
-  page.removeEventListener('keydown', closeByEsc);
-  popupTypeEdit.removeEventListener('click', closeByOverlay);
-}
-
-
-//Слушатель закрытия попапа
-
-function closePopup (popupClose, popupTypeEdit, page) {
-
-  popupTypeEdit.addEventListener('click', closeByOverlay);
-
-  page.addEventListener('keydown', closeByEsc);
-
-  popupClose.addEventListener('click', () => 
-  popUpClose(popupTypeEdit))
-
-}
-
-
-//Открыть попап
-
-export function openPopup (popupClose, popupTypeEdit, page) {
-  popupTypeEdit.classList.add('popup_is-opened');
-
-  closePopup(popupClose, popupTypeEdit, page);
-
+  document.removeEventListener('keydown', closeByEsc);
 }
