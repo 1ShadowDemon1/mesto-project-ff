@@ -34,16 +34,14 @@ initialCards.forEach(function(item) {
 popupList.forEach(function(popupList) {
   popupList.classList.add('popup_is-animated');
 
-  popupList.addEventListener('click', function (evt) {
+  popupList.addEventListener('click', function(evt) {
     if (evt.currentTarget === evt.target) {
       closeModal(evt.target)
     }
   });
 
   const popupClose = popupList.querySelector('.popup__close');
-  popupClose.addEventListener('click', function() {
-    closeModal(popupList)
-  });
+  popupClose.addEventListener('click', () => closeModal(popupList));
 });
 
 
