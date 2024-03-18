@@ -29,10 +29,22 @@ initialCards.forEach(function(item) {
 })
 
 
-//Добавление анимации всем поапам
+//Добавление анимации всем поапам и слушателя для закрытия
 
-popupList.forEach(popupList => popupList.classList.add('popup_is-animated'));
+popupList.forEach(function(popupList) {
+  popupList.classList.add('popup_is-animated');
 
+  popupList.addEventListener('click', function (evt) {
+    if (evt.currentTarget === evt.target) {
+      closeModal(evt.target)
+    }
+  });
+
+  const popupClose = popupList.querySelector('.popup__close');
+  popupClose.addEventListener('click', function() {
+    closeModal(popupList)
+  });
+});
 
 
 //Открыть профиль
@@ -63,7 +75,7 @@ profileAddButton.addEventListener('click', () => {
 
 formElementPlace.addEventListener('submit', (evt) => {
   evt.preventDefault();
-  
+
   const nameInput = formElementPlace['place-name'].value;
   const placeWork = formElementPlace.link.value;
 
