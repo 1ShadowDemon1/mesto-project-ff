@@ -31,17 +31,17 @@ initialCards.forEach(function(item) {
 
 //Добавление анимации всем поапам и слушателя для закрытия
 
-popupList.forEach(function(popupList) {
-  popupList.classList.add('popup_is-animated');
+popupList.forEach(function(popup) {
+  popup.classList.add('popup_is-animated');
 
-  popupList.addEventListener('click', function(evt) {
+  popup.addEventListener('click', function(evt) {
     if (evt.currentTarget === evt.target) {
       closeModal(evt.target)
     }
   });
 
-  const popupClose = popupList.querySelector('.popup__close');
-  popupClose.addEventListener('click', () => closeModal(popupList));
+  const popupClose = popup.querySelector('.popup__close');
+  popupClose.addEventListener('click', () => closeModal(popup));
 });
 
 
