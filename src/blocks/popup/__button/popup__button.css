@@ -11,10 +11,10 @@
   border-radius: 2px;
   border: none;
   transition: visibility 0s, background 0.3s;
-  margin-top: 48px;
+  margin-top: 20px;
 }
 
-.popup__button:hover {
+.form__submit_active:hover {
   background: rgba(0, 0, 0, 0.8);
   cursor: pointer;
 }
@@ -24,4 +24,8 @@
     font-size: 14px;
     line-height: 17px;
   }
+}
+
+.form__submit_inactive {
+  background: #C4C4C4;
 }

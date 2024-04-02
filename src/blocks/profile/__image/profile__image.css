@@ -20,3 +20,20 @@
     margin-right: 0;
   }
 }
+
+.profile__image_button {
+  width: inherit;
+  height: inherit;
+  background-color: transparent;
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  border-radius: 50%;
+  border: 40px solid transparent;
+}
+
+.profile__image_button:hover {
+  background-image: url("../../../images/Vector.svg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
