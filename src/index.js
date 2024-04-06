@@ -74,7 +74,8 @@ formElementPlace.addEventListener('submit', (evt) => {
   renderLoading(true)
   addNewCardDataServer(placeWork, nameInput)
     .then((res) => {
-      const cardElement = createCard(res.owner._id, deleteCard, res._id, res.owner._id, res.likes.length, res.link, res.name, likeButton, openCardPopup)
+      const idUser = res.owner._id
+      const cardElement = createCard(idUser, res, deleteCard, likeButton, openCardPopup)
       cardsPlaces.prepend(cardElement);
     })
     .catch(err => {
@@ -129,7 +130,7 @@ takeTocenAPI().then((res) => {
   loadCardServerAPI()
     .then((resList) => {
     resList.forEach((res) => {
-      const cardElement = createCard(idUser, deleteCard, res._id, res.owner._id, res.likes.length, res.link, res.name, likeButton, openCardPopup, res.likes);
+      const cardElement = createCard(idUser, res, deleteCard, likeButton, openCardPopup);
       cardsPlaces.append(cardElement);
     })
   })
@@ -155,7 +156,7 @@ function deleteCard(cardid) {
     })
   document.getElementById(`${cardid}`).remove();
 }
-/* Подключение попап удаления карточки (экспонентное нажатие, проверить слушатели)
+/* Подключение попап подтверждение удаления карточки (экспонентное нажатие, проверить слушатели)
 function deleteCardYes(idCard, popupDeleteCard) {
   const popupDeleteCardButton = document.forms['form_delete_card']
 

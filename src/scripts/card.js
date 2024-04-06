@@ -1,6 +1,8 @@
 //Функция создания карточки
 
-export function createCard(idUser, deleteCard, idCard, userId, likes, сardLink, сardText, likeButton, openCardPopup, myLikeOnCard) {
+export function createCard(idUser, res, deleteCard, likeButton, openCardPopup) {
+  const myLikeOnCard = res.likes
+
   const cardTemplate = document.querySelector('#card-template').content;
   const card = cardTemplate.querySelector('.places__item').cloneNode(true);
   const cardImage = card.querySelector('.card__image');
@@ -8,12 +10,12 @@ export function createCard(idUser, deleteCard, idCard, userId, likes, сardLink,
   const like = card.querySelector('.like')
   const buttonDeleteCard = card.querySelector('.card__delete-button');
   const buttonRemove = card.querySelector("button");
-  cardLikeButton.id = idCard
+  cardLikeButton.id = res._id
 
-  cardImage.src = сardLink
-  card.querySelector('.card__title').textContent = сardText;
-  cardImage.alt = сardText;
-  card.id = idCard
+  cardImage.src = res.link
+  card.querySelector('.card__title').textContent = res.name;
+  cardImage.alt = res.name;
+  card.id = res._id
 
   myLikeOnCard.forEach((likeId) => {
     if(likeId._id === idUser) {
@@ -21,17 +23,17 @@ export function createCard(idUser, deleteCard, idCard, userId, likes, сardLink,
     }
   })
 
-  if(!(userId === idUser)) {
+  if(!(res.owner._id === idUser)) {
     buttonRemove.remove()
   } else {
     buttonDeleteCard.addEventListener('click', () => deleteCard(card.id)); 
   }
 
-  cardLikeButton.addEventListener('click', () => likeButton(cardLikeButton, like, idCard));
+  cardLikeButton.addEventListener('click', () => likeButton(cardLikeButton, like, res._id));
   
-  like.textContent = likes;
+  like.textContent = res.likes.length;
 
-  cardImage.addEventListener('click', () => openCardPopup(сardLink, сardText))
+  cardImage.addEventListener('click', () => openCardPopup(res.link, res.name))
   
   return card;
 }
