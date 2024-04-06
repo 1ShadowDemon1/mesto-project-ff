@@ -1,37 +1,50 @@
-export function setEventListeners(formElement) {
-  const inputList = Array.from(formElement.querySelectorAll('.popup__input'));
-  const buttonElement = formElement.querySelector('.popup__button');
-  
-  toggleButtonState(inputList, buttonElement)
+//Контроль вводимых данных
+
+export function enableValidation(validationConfig){
+  const formList = Array.from(document.querySelectorAll(validationConfig.form));
+  formList.forEach((formElement) => {
+    setEventListeners(formElement, validationConfig);
+  });
+}; 
+
+
+function setEventListeners(formElement, validationConfig) {
+  const inputList = Array.from(formElement.querySelectorAll(validationConfig.input));
+  const buttonElement = formElement.querySelector(validationConfig.submitButton);
+
+  toggleButtonState(inputList, buttonElement, validationConfig)
+
   inputList.forEach((inputElement) => {
     inputElement.addEventListener('input', () => {
-      isValid(formElement, inputElement)
-      toggleButtonState(inputList, buttonElement)
+      isValid(formElement, inputElement, validationConfig)
+      toggleButtonState(inputList, buttonElement, validationConfig)
     });
   });
 }; 
 
-function isValid(formElement, inputElement) {
+
+function isValid(formElement, inputElement, validationConfig) {
   if (inputElement.validity.patternMismatch) {
     inputElement.setCustomValidity(inputElement.dataset.errorMessage);
   } else {
     inputElement.setCustomValidity("");
   }
   if (!inputElement.validity.valid) {
-    showInputError(formElement, inputElement, inputElement.validationMessage);
+    showInputError(formElement, inputElement, inputElement.validationMessage, validationConfig);
   } else {
-    hideInputError(formElement, inputElement);
+    hideInputError(formElement, inputElement, validationConfig);
   }
 }; 
 
-function showInputError(formElement, inputElement, errorMessage) {
-  inputElement.style = "border-bottom: 1px solid red;"
+
+function showInputError(formElement, inputElement, errorMessage, validationConfig) {
+  inputElement.classList.add(validationConfig.errorText)
   const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
   errorElement.textContent = errorMessage;
 };
 
-function hideInputError(formElement, inputElement) {
-  inputElement.style = "border-bottom: 1px solid rgba(0,0,0,.2);"
+function hideInputError(formElement, inputElement, validationConfig) {
+  inputElement.classList.remove(validationConfig.errorText)
   const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
   errorElement.textContent = '';
 }; 
@@ -39,15 +52,15 @@ function hideInputError(formElement, inputElement) {
 
 //Блокировка кнопки
 
-function toggleButtonState(inputList, buttonElement) {
+function toggleButtonState(inputList, buttonElement, validationConfig) {
   if (hasInvalidInput(inputList)) {
     buttonElement.disabled = true;
-    buttonElement.classList.add('form__submit_inactive');
-    buttonElement.classList.remove('form__submit_active');
+    buttonElement.classList.add(validationConfig.submitFromInactive);
+    buttonElement.classList.remove(validationConfig.formSubmitActiv);
   } else {
     buttonElement.disabled = false;
-    buttonElement.classList.remove('form__submit_inactive');
-    buttonElement.classList.add('form__submit_active');
+    buttonElement.classList.remove(validationConfig.submitFromInactive);
+    buttonElement.classList.add(validationConfig.formSubmitActiv);
   }
 }; 
 
@@ -56,3 +69,20 @@ function hasInvalidInput(inputList) {
     return !inputElement.validity.valid;
   })
 };
+
+//Очистка форм
+
+export function clearValidation(profileForm, validationConfig) {
+  const errorInputResetList = profileForm.querySelectorAll(`${validationConfig.input}-error`)
+  errorInputResetList.forEach(function(errorInputReset) {
+    errorInputReset.textContent = '';
+  })
+
+  const InputStyleResetList = profileForm.querySelectorAll(validationConfig.input)
+  InputStyleResetList.forEach(function(InputStyleRese) {
+    InputStyleRese.classList.remove(validationConfig.errorText)
+  })
+
+  const buttonElement = profileForm.querySelector(validationConfig.submitButton);
+  buttonElement.classList.add(validationConfig.submitFromInactive);
+}

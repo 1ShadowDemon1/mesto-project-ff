@@ -1,8 +1,9 @@
 import './pages/index.css';
-import { createCard, likeButton} from './scripts/card';
+import { createCard} from './scripts/card';
 import { openModal, closeModal } from './scripts/modal';
-import { setEventListeners } from './scripts/validation';
-import { addNewCardDataServer, takeTocenAPI, loadCardServerAPI, sendDataServerAPI, deleteCardAPI, updateAvatarAPI } from './scripts/serverAPI'
+import { enableValidation, clearValidation } from './scripts/validation';
+import { addNewCardDataServer, takeTocenAPI, loadCardServerAPI, sendDataServerAPI, deleteCardAPI, updateAvatarAPI, likeCard, unlikeCard } from './scripts/serverAPI'
+
 
 
 // @todo: DOM узлы
@@ -39,7 +40,7 @@ profileEditButton.addEventListener('click', () => {
 
   formElementProfile.name.value = profileTitle.textContent;
   formElementProfile.description.value = profileDescription.textContent;
-  clearValidation(popupTypeEdit)
+  clearValidation(popupTypeEdit, validationConfig)
   openModal(popupTypeEdit);
 })
 
@@ -50,7 +51,7 @@ formElementProfile.addEventListener('submit', (evt) => {
   profileDescription.textContent = formElementProfile.description.value;
 
   renderLoading(true)
-  sendDataServerAPI(profileTitle.textContent, profileDescription.textContent, renderLoading(false))
+  sendDataServerAPI(profileTitle.textContent, profileDescription.textContent).finally(() => {renderLoading(false)})
   closeModal(popupTypeEdit);
 })
 
@@ -71,40 +72,34 @@ formElementPlace.addEventListener('submit', (evt) => {
   const placeWork = formElementPlace.link.value;
 
   renderLoading(true)
-  addNewCardDataServer(placeWork, nameInput, renderLoading(false),
-  deleteCard, likeButton, openCardPopup, createCard, cardsPlaces)
+  addNewCardDataServer(placeWork, nameInput)
+    .then((res) => {
+      const cardElement = createCard(res.owner._id, deleteCard, res._id, res.owner._id, res.likes.length, res.link, res.name, likeButton, openCardPopup)
+      cardsPlaces.prepend(cardElement);
+    })
+    .catch(err => {
+      console.error(err)
+    })
+    .finally(() => {renderLoading(false)})
 
   formElementPlace.reset();
-  clearValidation(popupTypeNewCard)
+  clearValidation(popupTypeNewCard, validationConfig)
   closeModal(popupTypeNewCard);
 })
 
 
 //Контроль вводимых данных
 
-function enableValidation() {
-  const formList = Array.from(document.querySelectorAll('.popup__form'));
-
-  formList.forEach((formElement) => {
-    setEventListeners(formElement);
-  });
-}; 
-enableValidation(); 
-
-function clearValidation(profileForm) {
-  const errorInputResetList = profileForm.querySelectorAll('.popup__input-error')
-  errorInputResetList.forEach(function(errorInputReset) {
-    errorInputReset.textContent = '';
-  })
-
-  const InputStyleResetList = profileForm.querySelectorAll('.popup__input ')
-  InputStyleResetList.forEach(function(InputStyleRese) {
-    InputStyleRese.style = "border-bottom: 1px solid rgba(0,0,0,.2)"
-  })
-
-  const buttonElement = profileForm.querySelector('.popup__button');
-  buttonElement.classList.add('form__submit_inactive');
+const validationConfig = {
+  form: '.popup__form',
+  input: '.popup__input',
+  submitButton: '.popup__button',
+  submitFromInactive: 'form__submit_inactive',
+  formSubmitActiv: 'form__submit_active',
+  errorText: 'popup__input-error_active'
 }
+
+enableValidation(validationConfig);
 
 
 //Открыть попап карточку
@@ -122,22 +117,45 @@ function openCardPopup(сardLink, сardText) {
 
 //API токен
 
-takeTocenAPI(profileTitle, profileDescription, profileImage);
+takeTocenAPI().then((res) => {
+  profileTitle.textContent = res.name 
+  profileDescription.textContent = res.about 
+  profileImage.style = `background-image: url("${res.avatar}")`
+  let idUser = res._id 
 
 
-// Загрузка карточек с сервера
+  // Загрузка карточек с сервера
 
-loadCardServerAPI(deleteCard, likeButton, openCardPopup, createCard, cardsPlaces)
+  loadCardServerAPI()
+    .then((resList) => {
+    resList.forEach((res) => {
+      const cardElement = createCard(idUser, deleteCard, res._id, res.owner._id, res.likes.length, res.link, res.name, likeButton, openCardPopup, res.likes);
+      cardsPlaces.append(cardElement);
+    })
+  })
+    .catch(err => {
+      console.error(err)
+    })
+})
+  .catch(err => {
+    console.error(err)
+  })
 
 
 //Открыть попап удаления карточки
 
 function deleteCard(cardid) {
+  /*
   const popupDeleteCard = document.querySelector('.popup_delete_card')
-  openModal(popupDeleteCard);
   deleteCardYes(cardid, popupDeleteCard)
+  */
+  deleteCardAPI(cardid)
+    .catch(err => {
+      console.error(err)
+    })
+  document.getElementById(`${cardid}`).remove();
 }
-
+/* Подключение попап удаления карточки (экспонентное нажатие, проверить слушатели)
 function deleteCardYes(idCard, popupDeleteCard) {
   const popupDeleteCardButton = document.forms['form_delete_card']
 
@@ -151,7 +169,7 @@ function deleteCardYes(idCard, popupDeleteCard) {
     document.getElementById(`${idCard}`).remove();
   })
 }
-
+*/
 
 //Обновление аватара пользователя
 const avatarEdit = document.querySelector('.avatar_edit_popup')
@@ -167,10 +185,11 @@ formElementAvatar.addEventListener('submit', (evt) => {
   renderLoading(true)
   const Photo = formElementAvatar.avatar.value
 
-  updateAvatarAPI(Photo, renderLoading(false))
+  updateAvatarAPI(Photo)
+    .finally(() => {renderLoading})
   
   formElementAvatar.reset();
-  clearValidation(avatarEdit)
+  clearValidation(avatarEdit, validationConfig)
   closeModal(avatarEdit);
 })
 
@@ -186,3 +205,31 @@ function renderLoading(isLoading) {
     popupButton.textContent = 'Сохранить'
   }
 }
+
+
+//обработчик лайка\дизлайка
+
+function likeButton (cardLikeButton, like, idCard) {
+  if(cardLikeButton.classList.value === 'card__like-button') {
+    cardLikeButton.classList.toggle('card__like-button_is-active')
+
+    likeCard(idCard)
+      .then((result) => {
+        like.textContent = result.likes.length
+      })
+      .catch(err => {
+        console.error(err)
+      })
+
+  } else {
+    cardLikeButton.classList.toggle('card__like-button_is-active')
+
+    unlikeCard(idCard)
+      .then((result) => {
+        like.textContent = result.likes.length
+      })
+      .catch(err => {
+        console.error(err)
+      })
+  }
+};

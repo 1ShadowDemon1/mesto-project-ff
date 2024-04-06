@@ -1,104 +1,109 @@
-//Добавление новой карточки на сервер
-
-export function addNewCardDataServer(linkCard, nameCard, renderLoading, deleteCard, likeButton, openCardPopup, createCard, cardsPlaces) {
-  fetch('https://nomoreparties.co/v1/wff-cohort-10/cards', {
-    method: 'POST',
-    headers: {
-      authorization: '57dd4f5d-dace-4e52-a052-4e42c99f4a48',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      name: `${nameCard}`,
-      link: `${linkCard}`
-    })
-  })
-    .then(res => res.json())
-    .then((result) => {
-      const cardElement = createCard(deleteCard, result._id, result.owner._id, result.likes.length, result.link, result.name, likeButton, openCardPopup)
-      cardsPlaces.prepend(cardElement);
-    })
-    .finally(() => {renderLoading})
-}
-
-
-//API токен
-
-export function takeTocenAPI(profileTitle, profileDescription, profileImage) {
-  fetch('https://nomoreparties.co/v1/wff-cohort-10/users/me', {
+const config = {
+  url: 'https://nomoreparties.co/v1/wff-cohort-10',
   headers: {
-    authorization: '57dd4f5d-dace-4e52-a052-4e42c99f4a48'
+    authorization: '57dd4f5d-dace-4e52-a052-4e42c99f4a48', 
+    'Content-Type': 'application/json' 
   }
-})
-  .then(res => res.json())
-  .then((result) => {
-    profileTitle.textContent = result.name
-    profileDescription.textContent = result.about
-    
-    profileImage.style = `background-image: url("${result.avatar}")`
-  }); 
 }
 
-
-// Загрузка карточек с сервера
-
-export function loadCardServerAPI(deleteCard, likeButton, openCardPopup, createCard, cardsPlaces) {
-  fetch('https://nomoreparties.co/v1/wff-cohort-10/cards', {
-  headers: {
-    authorization: '57dd4f5d-dace-4e52-a052-4e42c99f4a48'
+//Проверка запроса
+function checkResponse(res) {
+  if(res.ok) {
+    return res.json();
   }
+  return Promise.reject(`Ошибка ${res.status}`)
+}
+
+//Загрузка данных пользователся с сервера
+const takeTocenAPI = () => {
+  return fetch(`${config.url}/users/me`, {
+    headers: config.headers
+  })
+    .then((res) => checkResponse(res))
+}
+
+//Загрузка карточек с сервера
+function loadCardServerAPI() {
+return fetch(`${config.url}/cards`, {
+  headers: config.headers
 })
-  .then(res => res.json())
-  .then((resultList) => {
-    resultList.forEach((result) => {
-      const cardElement = createCard(deleteCard, result._id, result.owner._id, result.likes.length, result.link, result.name, likeButton, openCardPopup);
-      cardsPlaces.append(cardElement);
-    })
-  })
+.then((res) => checkResponse(res))
 }
 
-
-//Редактирование профиля, обновления данныйх на сервере 
-
-export function sendDataServerAPI(profileName, profileAbout, renderLoading) {
-  fetch('https://nomoreparties.co/v1/wff-cohort-10/users/me', {
-    method: 'PATCH',
-    headers: {
-      authorization: '57dd4f5d-dace-4e52-a052-4e42c99f4a48',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      name: `${profileName}`,
-      about: `${profileAbout}`
-    })
-  })
-    .finally(() => {renderLoading})
-}
-
-
-//Удаления карточки с сервера
-
-export function deleteCardAPI(idCard) {
-  fetch(`https://nomoreparties.co/v1/wff-cohort-10/cards/${idCard}`, {
-    method: 'DELETE',
-    headers: {
-      authorization: '57dd4f5d-dace-4e52-a052-4e42c99f4a48',
-    }
-  })
-}
-
-
-//Обновление аватара пользователя на севрере
-
-export function updateAvatarAPI(Photo, renderLoading) {
-  fetch(`https://nomoreparties.co/v1/wff-cohort-10/users/me/avatar`, {
+//Редактирование профиля
+function sendDataServerAPI(profileName, profileAbout) {
+return fetch(`${config.url}/users/me`, {
   method: 'PATCH',
-  headers: {
-    authorization: '57dd4f5d-dace-4e52-a052-4e42c99f4a48',
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    avatar: `${Photo}`
-  })
+  headers: config.headers,
+  body: JSON.stringify({ 
+    name: `${profileName}`, 
+    about: `${profileAbout}` 
+  }) 
 })
-  .finally(() => {renderLoading})
+  .then((res) => checkResponse(res))
+}
+
+//Добавление новой карточки
+function addNewCardDataServer(linkCard, nameCard) {
+  return fetch(`${config.url}/cards`, {
+    method: 'POST',
+    headers: config.headers,
+    body: JSON.stringify({ 
+      name: `${nameCard}`, 
+      link: `${linkCard}` 
+    })
+  })
+    .then((res) => checkResponse(res))
+}
+
+//Удаление карточки
+function deleteCardAPI(idCard) {
+  return fetch(`${config.url}/cards/${idCard}`, {
+    method: 'DELETE',
+    headers: config.headers
+  })
+    .then((res) => checkResponse(res))
+}
+
+//Обновление аватара
+function updateAvatarAPI(Photo) {
+  return fetch(`${config.url}/users/me/avatar`, {
+    method: 'PATCH',
+    headers: config.headers,
+    body: JSON.stringify({ 
+      avatar: Photo
+    })
+  })
+    .then((res) => checkResponse(res))
+}
+
+//Лайк карточки
+function likeCard(idCard) {
+  return fetch(`${config.url}/cards/likes/${idCard}`, {
+    method: 'PUT',
+    headers: config.headers
+  })
+    .then((res) => checkResponse(res))
+}
+
+//Снятие лайка с каточки
+function unlikeCard(idCard) {
+  return fetch(`${config.url}/cards/likes/${idCard}`, {
+    method: 'DELETE',
+    headers: config.headers
+  })
+    .then((res) => checkResponse(res))
+}
+
+
+export {
+  takeTocenAPI,
+  loadCardServerAPI,
+  sendDataServerAPI,
+  addNewCardDataServer,
+  deleteCardAPI,
+  updateAvatarAPI,
+  likeCard,
+  unlikeCard,
+
 }
