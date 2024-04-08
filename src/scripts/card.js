@@ -1,6 +1,8 @@
+import { likeCard, unlikeCard } from './serverAPI'
+
 //Функция создания карточки
 
-export function createCard(idUser, res, deleteCard, likeButton, openCardPopup) {
+export function createCard(idUser, res, deleteCard, openCardPopup) {
   const myLikeOnCard = res.likes
 
   const cardTemplate = document.querySelector('#card-template').content;
@@ -38,3 +40,30 @@ export function createCard(idUser, res, deleteCard, likeButton, openCardPopup) {
   return card;
 }
 
+
+//Обработчик лайка\дизлайка
+
+function likeButton (cardLikeButton, like, idCard) {
+  if(cardLikeButton.classList.value === 'card__like-button') {
+
+    likeCard(idCard)
+      .then((result) => {
+        like.textContent = result.likes.length
+        cardLikeButton.classList.toggle('card__like-button_is-active')
+      })
+      .catch(err => {
+        console.error(err)
+      })
+
+  } else {
+
+    unlikeCard(idCard)
+      .then((result) => {
+        like.textContent = result.likes.length
+        cardLikeButton.classList.toggle('card__like-button_is-active')
+      })
+      .catch(err => {
+        console.error(err)
+      })
+  }
+};

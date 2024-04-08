@@ -47,12 +47,19 @@ profileEditButton.addEventListener('click', () => {
 formElementProfile.addEventListener('submit', (evt) => {
   evt.preventDefault(); 
 
-  profileTitle.textContent = formElementProfile.name.value;
-  profileDescription.textContent = formElementProfile.description.value;
-
   renderLoading(true)
-  sendDataServerAPI(profileTitle.textContent, profileDescription.textContent).finally(() => {renderLoading(false)})
-  closeModal(popupTypeEdit);
+  sendDataServerAPI(formElementProfile.name.value, formElementProfile.description.value)
+    .then(() => {
+      profileTitle.textContent = formElementProfile.name.value;
+      profileDescription.textContent = formElementProfile.description.value;
+
+      closeModal(popupTypeEdit);
+    })
+    .finally(() => {renderLoading(false)})
+    .catch(err => {
+      console.error(err)
+    })
+
 })
 
 
@@ -75,17 +82,17 @@ formElementPlace.addEventListener('submit', (evt) => {
   addNewCardDataServer(placeWork, nameInput)
     .then((res) => {
       const idUser = res.owner._id
-      const cardElement = createCard(idUser, res, deleteCard, likeButton, openCardPopup)
+      const cardElement = createCard(idUser, res, deleteCard, openCardPopup)
       cardsPlaces.prepend(cardElement);
+
+      formElementPlace.reset();
+      clearValidation(popupTypeNewCard, validationConfig)
+      closeModal(popupTypeNewCard);
     })
+    .finally(() => {renderLoading(false)})
     .catch(err => {
       console.error(err)
     })
-    .finally(() => {renderLoading(false)})
-
-  formElementPlace.reset();
-  clearValidation(popupTypeNewCard, validationConfig)
-  closeModal(popupTypeNewCard);
 })
 
 
@@ -118,7 +125,8 @@ function openCardPopup(сardLink, сardText) {
 
 //API токен
 
-takeTocenAPI().then((res) => {
+takeTocenAPI()
+  .then((res) => {
   profileTitle.textContent = res.name 
   profileDescription.textContent = res.about 
   profileImage.style = `background-image: url("${res.avatar}")`
@@ -129,19 +137,18 @@ takeTocenAPI().then((res) => {
 
   loadCardServerAPI()
     .then((resList) => {
-    resList.forEach((res) => {
-      const cardElement = createCard(idUser, res, deleteCard, likeButton, openCardPopup);
-      cardsPlaces.append(cardElement);
+      resList.forEach((res) => {
+        const cardElement = createCard(idUser, res, deleteCard, openCardPopup);
+        cardsPlaces.append(cardElement);
+      })
     })
-  })
     .catch(err => {
       console.error(err)
     })
-})
   .catch(err => {
     console.error(err)
   })
-
+})
 
 //Открыть попап удаления карточки
 
@@ -151,10 +158,12 @@ function deleteCard(cardid) {
   deleteCardYes(cardid, popupDeleteCard)
   */
   deleteCardAPI(cardid)
+    .then(() => {
+      document.getElementById(`${cardid}`).remove();
+    })
     .catch(err => {
       console.error(err)
     })
-  document.getElementById(`${cardid}`).remove();
 }
 /* Подключение попап подтверждение удаления карточки (экспонентное нажатие, проверить слушатели)
 function deleteCardYes(idCard, popupDeleteCard) {
@@ -187,11 +196,17 @@ formElementAvatar.addEventListener('submit', (evt) => {
   const Photo = formElementAvatar.avatar.value
 
   updateAvatarAPI(Photo)
+    .then(() => {
+      profileImage.style = `background-image: url("${Photo}")`
+
+      formElementAvatar.reset();
+      clearValidation(avatarEdit, validationConfig)
+      closeModal(avatarEdit);
+    })
     .finally(() => {renderLoading})
-  
-  formElementAvatar.reset();
-  clearValidation(avatarEdit, validationConfig)
-  closeModal(avatarEdit);
+    .catch(err => {
+      console.error(err)
+    })
 })
 
 
@@ -206,31 +221,3 @@ function renderLoading(isLoading) {
     popupButton.textContent = 'Сохранить'
   }
 }
-
-
-//обработчик лайка\дизлайка
-
-function likeButton (cardLikeButton, like, idCard) {
-  if(cardLikeButton.classList.value === 'card__like-button') {
-    cardLikeButton.classList.toggle('card__like-button_is-active')
-
-    likeCard(idCard)
-      .then((result) => {
-        like.textContent = result.likes.length
-      })
-      .catch(err => {
-        console.error(err)
-      })
-
-  } else {
-    cardLikeButton.classList.toggle('card__like-button_is-active')
-
-    unlikeCard(idCard)
-      .then((result) => {
-        like.textContent = result.likes.length
-      })
-      .catch(err => {
-        console.error(err)
-      })
-  }
-};
