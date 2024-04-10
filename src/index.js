@@ -47,7 +47,7 @@ profileEditButton.addEventListener('click', () => {
 formElementProfile.addEventListener('submit', (evt) => {
   evt.preventDefault(); 
 
-  renderLoading(true)
+  renderLoading(true, formElementProfile)
   sendDataServerAPI(formElementProfile.name.value, formElementProfile.description.value)
     .then(() => {
       profileTitle.textContent = formElementProfile.name.value;
@@ -55,7 +55,7 @@ formElementProfile.addEventListener('submit', (evt) => {
 
       closeModal(popupTypeEdit);
     })
-    .finally(() => {renderLoading(false)})
+    .finally(() => {renderLoading(false, formElementProfile)})
     .catch(err => {
       console.error(err)
     })
@@ -78,7 +78,7 @@ formElementPlace.addEventListener('submit', (evt) => {
   const nameInput = formElementPlace['place-name'].value;
   const placeWork = formElementPlace.link.value;
 
-  renderLoading(true)
+  renderLoading(true, formElementPlace)
   addNewCardDataServer(placeWork, nameInput)
     .then((res) => {
       const idUser = res.owner._id
@@ -89,7 +89,7 @@ formElementPlace.addEventListener('submit', (evt) => {
       clearValidation(popupTypeNewCard, validationConfig)
       closeModal(popupTypeNewCard);
     })
-    .finally(() => {renderLoading(false)})
+    .finally(() => {renderLoading(false, formElementPlace)})
     .catch(err => {
       console.error(err)
     })
@@ -192,7 +192,7 @@ profileImageButton.addEventListener('click', () => {
 const formElementAvatar = document.forms['avatar_edit']
 formElementAvatar.addEventListener('submit', (evt) => {
   evt.preventDefault(); 
-  renderLoading(true)
+  renderLoading(true, formElementAvatar)
   const Photo = formElementAvatar.avatar.value
 
   updateAvatarAPI(Photo)
@@ -203,7 +203,7 @@ formElementAvatar.addEventListener('submit', (evt) => {
       clearValidation(avatarEdit, validationConfig)
       closeModal(avatarEdit);
     })
-    .finally(() => {renderLoading})
+    .finally(() => {renderLoading(false, formElementAvatar)})
     .catch(err => {
       console.error(err)
     })
@@ -212,8 +212,8 @@ formElementAvatar.addEventListener('submit', (evt) => {
 
 //Улучшенный UX всех форм
 
-function renderLoading(isLoading) {
-  const popupButton = document.querySelector('.popup__button') 
+function renderLoading(isLoading, elemetnPopup) {
+  const popupButton = elemetnPopup.querySelector('.popup__button') 
 
   if(isLoading) {
     popupButton.textContent = 'Сохранение...'
